@@ -1,11 +1,13 @@
-import styles from './styles.module.scss';
+import styles from "./styles.module.scss";
 
-export function SubscribeButton(){
-    return(
-        <button
-        type="button"
-        className={styles.subscribeButton}>
-            Subscribe Now
-        </button>
-    )
+type SubscribeButtonProps = {
+  priceId: string;
+};
+
+export function SubscribeButton({priceId}: SubscribeButtonProps) {
+  return (
+    <button type="button" className={styles.subscribeButton}>
+      Subscribe Now
+    </button>
+  );
 }
