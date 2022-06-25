@@ -28,6 +28,7 @@ export default NextAuth({
         );
         return true;
       } catch (error) {
+        alert(error.message)
         return false;
       }
     },
