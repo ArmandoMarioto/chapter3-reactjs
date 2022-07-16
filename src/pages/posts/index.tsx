@@ -3,7 +3,19 @@ import { GetStaticProps } from 'next/types';
 import Prismic from '@prismicio/client'
 import { getPrismicClient } from '../../services/prismic';
 import styles from './styles.module.scss';
-export default function Posts() {
+import { RichText } from 'prismic-dom'
+
+type Post = {
+    slug: string;
+    title: string;
+    excerpt: string;
+    updatedAt: string;
+}
+
+type PostsProps = {
+    posts: Post[]
+}
+export default function Posts({posts}: PostsProps) {
     return (
         <>
             <Head>
@@ -12,24 +24,15 @@ export default function Posts() {
 
             <main className={styles.container}>
                 <div className={styles.posts}>
-                    <a href="">
-                        <time>19 de Mai de 2022</time>
-                            <strong>Por que participar da NLW?</strong>
-                            <p>Um evento de impacto que pode abrir portas para quem busca programar uma rota de sucesso em sua carreira em TI.</p>
-                        
-                    </a>
-                    <a href="">
-                        <time>19 de Mai de 2022</time>
-                            <strong>Por que participar da NLW?</strong>
-                            <p>Um evento de impacto que pode abrir portas para quem busca programar uma rota de sucesso em sua carreira em TI.</p>
-                        
-                    </a>
-                    <a href="">
-                        <time>19 de Mai de 2022</time>
-                            <strong>Por que participar da NLW?</strong>
-                            <p>Um evento de impacto que pode abrir portas para quem busca programar uma rota de sucesso em sua carreira em TI.</p>
-                        
-                    </a>
+                    {   
+                        posts.map(post => (
+                            <a key={post.slug} href="#">
+                                <time>{post.updatedAt}</time>
+                                <strong>{post.title}</strong>
+                                <p>{post.excerpt}</p>
+                            </a>
+                         ))
+                    }
                 </div>
             </main>
             
@@ -40,16 +43,33 @@ export default function Posts() {
 
 export const getStaticProps: GetStaticProps = async () => {
     const prismic = getPrismicClient();
-    const respondse = await prismic.query([
+
+    const respondse = await prismic.query<any>([
         Prismic.Predicates.at('document.type', 'posts'),
     ], {
         fetch: ['posts.title', 'posts.content'],
         pageSize: 100,
     }
     )
+
+    const posts = respondse.results.map(post => {
+        return {
+            slug: post.uid,
+            title: RichText.asText(post.data.title),
+            excerpt: post.data.content.find(content => content.type === 'paragraph').text ?? '',
+            updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            }),
+
+        }
+    })
     console.log(respondse);
 
     return {
-        props:{}
+        props:{
+            posts
+        }
     }
 }
