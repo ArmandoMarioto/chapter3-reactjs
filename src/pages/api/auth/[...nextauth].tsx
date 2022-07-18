@@ -39,7 +39,6 @@ export default NextAuth({
                 q.Index("subscription_by_status"), 
                 q.Casefold("active")
                 ),
-              //q.Match(q.Index("subscription_by_status"), q.Casefold("active")),
             ])
           )
         );
